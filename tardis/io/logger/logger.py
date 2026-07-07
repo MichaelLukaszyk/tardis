@@ -53,7 +53,7 @@ class TARDISLogger:
     
     Parameters
     ----------
-    log_columns : dict
+    log_columns : dict, optional
         Dictionary of scroll columns for each log level.
     display_handles : dict, optional
         Dictionary of display handles for each column (jupyter environment).
@@ -164,8 +164,8 @@ class TARDISLogger:
         """Finalize widget logging by embedding the final state.
         """
         # Embed the final state for Jupyter environments
-        if (Environment.allows_widget_display() and hasattr(self, 'display_handles') 
-            and hasattr(self, 'display_ids') and self.display_handles and self.display_ids):
+        if (Environment.allows_widget_display() and getattr(self, 'log_columns')
+            and getattr(self, 'display_handles') and getattr(self, 'display_ids')):
             print("Embedding the final state for Jupyter environments")
             for level, column in self.log_columns.items():
                 if (level in self.display_handles and level in self.display_ids 
@@ -268,4 +268,7 @@ def logging_state(log_level, tardis_config, specific_log_level=None, display_log
             logger.warning("Terminal environment detected, skipping logger widget")
         else:
             logger.warning("Unknown environment, skipping logger widget")
+    
+    tardislogger = TARDISLogger(batch_size=batch_size)
+    tardislogger.configure_logging(log_level, tardis_config, specific_log_level)
     return None, tardislogger
