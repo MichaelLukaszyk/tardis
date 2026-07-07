@@ -46,7 +46,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.modes.iip.solver import (
     MCTransportSolverIIP,
 )
-from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
+# from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 print('Logger 0')
 from tardis.workflows.workflow_logging import WorkflowLogging
@@ -950,8 +950,8 @@ class TypeIIPWorkflow(WorkflowLogging):
         """Run the TARDIS simulation until convergence is reached"""
 
         # Initialize iterations progress bar if showing progress bars
-        if self.show_progress_bars:
-            initialize_iterations_pbar(self.total_iterations)
+        # if self.show_progress_bars:
+        #     initialize_iterations_pbar(self.total_iterations)
 
         self.converged = False
 

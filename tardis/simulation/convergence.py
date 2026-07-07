@@ -1,9 +1,6 @@
-print('numpy?')
 import numpy as np
-print('numpy!')
 
 class ConvergenceSolver:
-    print('abc')
     def __init__(self, strategy):
         """Convergence solver. Sets convergence strategy and assigns a method
         to the converge property.

@@ -36,7 +36,7 @@ from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.estimators.continuum_radfield_properties import (
     MCContinuumPropertiesSolver,
 )
-from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
+# from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
 from tardis.visualization import ConvergencePlots
 
@@ -537,8 +537,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         run the simulation
         """
         # Initialize iterations progress bar if showing progress bars
-        if self.show_progress_bars:
-            initialize_iterations_pbar(self.iterations)
+        # if self.show_progress_bars:
+        #     initialize_iterations_pbar(self.iterations)
 
         start_time = time.time()
         while self.iterations_executed < self.iterations - 1:
