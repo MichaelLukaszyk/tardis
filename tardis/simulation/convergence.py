@@ -1,7 +1,9 @@
+print('numpy?')
 import numpy as np
-
+print('numpy!')
 
 class ConvergenceSolver:
+    print('abc')
     def __init__(self, strategy):
         """Convergence solver. Sets convergence strategy and assigns a method
         to the converge property.
@@ -18,13 +20,17 @@ class ConvergenceSolver:
         ValueError
             Unknown convergence type specified
         """
+        print('a')
         self.convergence_strategy = strategy
         self.damping_factor = self.convergence_strategy.damping_constant
         self.threshold = self.convergence_strategy.threshold
+        print('b')
 
         if self.convergence_strategy.type in ("damped"):
+            print('c')
             self.converge = self.damped_converge
         elif self.convergence_strategy.type in ("adaptive_damped"):
+            print('d')
             self.lambda_min = 0.1
             self.lambda_max = 1.0
             self.lambda_step = 0.05
@@ -32,11 +38,13 @@ class ConvergenceSolver:
             self.damping_factor = 0.5  
             self.converge = self.adaptive_damped
         elif self.convergence_strategy.type in ("custom"):
+            print('e')
             raise NotImplementedError(
                 "Convergence strategy type is custom; "
                 "you need to implement your specific treatment!"
             )
         else:
+            print('f')
             raise ValueError(
                 f"Convergence strategy type is "
                 f"not damped or custom "
