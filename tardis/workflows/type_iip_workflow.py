@@ -22,8 +22,16 @@ from tardis.opacities.opacity_solver import OpacitySolver
 print(1)
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 print(2)
+try:
+    from tardis.simulation.convergence import ConvergenceSolver
+    print(3)
+except Exception as e:
+    print(f"ERROR importing ConvergenceSolver: {type(e).__name__}: {e}")
+    import traceback
+    traceback.print_exc()
+    raise
 from tardis.simulation.convergence import ConvergenceSolver
-print(3)
+print(3.5)
 from tardis.spectrum.base import SpectrumSolver
 print(4)
 from tardis.spectrum.formal_integral.formal_integral_solver import (
@@ -55,7 +63,7 @@ def tprint(*args, **kwargs):
         print(f"[{timestamp}]", *args, **kwargs)
 
 class TypeIIPWorkflow(WorkflowLogging):
-    show_progress_bars = Environment.allows_widget_display()
+    show_progress_bars = False # Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
