@@ -7,7 +7,6 @@ from scipy.interpolate import interp1d
 from scipy.optimize import least_squares as lsq
 from scipy.sparse import block_diag
 
-print('Thing 0')
 from tardis import constants as const
 from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
@@ -17,53 +16,30 @@ from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
-print('Thing 1')
 from tardis.opacities.opacity_solver import OpacitySolver
-print(1)
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
-print(2)
-try:
-    from tardis.simulation.convergence import ConvergenceSolver
-    print(3)
-except Exception as e:
-    print(f"ERROR importing ConvergenceSolver: {type(e).__name__}: {e}")
-    import traceback
-    traceback.print_exc()
-    raise
 from tardis.simulation.convergence import ConvergenceSolver
-print(3.5)
 from tardis.spectrum.base import SpectrumSolver
-print(4)
 from tardis.spectrum.formal_integral.formal_integral_solver import (
     FormalIntegralSolver,
 )
-print(5)
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
-print("Thing 2")
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.modes.iip.solver import (
     MCTransportSolverIIP,
 )
-# from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
+from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
-print('Logger 0')
 from tardis.workflows.workflow_logging import WorkflowLogging
-print('Logger 1')
 
 # logging support
-print('Logger 2')
 logger = logging.getLogger(__name__)
-print('Logger 3')
 
-def tprint(*args, **kwargs):
-        from datetime import datetime
-        timestamp = datetime.now().strftime("%H:%M:%S")
-        print(f"[{timestamp}]", *args, **kwargs)
 
 class TypeIIPWorkflow(WorkflowLogging):
-    show_progress_bars = False # Environment.allows_widget_display()
+    show_progress_bars = Environment.allows_widget_display()
     enable_virtual_packet_logging = False
     log_level = None
     specific_log_level = None
@@ -582,7 +558,6 @@ class TypeIIPWorkflow(WorkflowLogging):
             max_electron_number_density * electron_density_fraction
         )
 
-        tprint("Plasma update start")
         self.plasma_solver.update(
             previous_ion_number_density=pl.ion_number_density.copy(),
             previous_electron_densities=electron_densities,
@@ -591,7 +566,6 @@ class TypeIIPWorkflow(WorkflowLogging):
             previous_b=pl.b,
             previous_t_electrons=pl.t_rad * link_t_rad_t_electron,
         )
-        tprint("Done")
 
         solution = np.zeros(2 * len(self.plasma_solver.fractional_heating))
         normalized_electron_fraction_change = (
@@ -679,22 +653,20 @@ class TypeIIPWorkflow(WorkflowLogging):
         lower_bound = [0.0, minimum_t_rad_link] * no_shells
         upper_bound = [1.0, 1.5] * no_shells
         self.plasma_solver.plasma_converged = False
-        print("Starting LSQ")
         thermal_lsq_result = lsq(
             self.thermal_balance_iteration,
             initial_guess,
             bounds=(lower_bound, upper_bound),
             jac_sparsity=jac_sparsity,
-            xtol=1e-6, # 1e-14
-            ftol=1e-8, # 1e-12
-            gtol=1e-6, # 1e-14
+            xtol=1e-14,
+            ftol=1e-12,
             x_scale="jac",
             verbose=1,
-            max_nfev=200, # 100
+            max_nfev=100,
             method="trf",
+            gtol=1e-14,
             args=(max_electron_number_density,),
         )
-        print("Finished!")
         self.plasma_solver.plasma_converged = True
         # final thermal_balance_iteration to set values in plasma
         self.thermal_balance_iteration(
@@ -948,10 +920,9 @@ class TypeIIPWorkflow(WorkflowLogging):
 
     def run(self):
         """Run the TARDIS simulation until convergence is reached"""
-
         # Initialize iterations progress bar if showing progress bars
-        # if self.show_progress_bars:
-        #     initialize_iterations_pbar(self.total_iterations)
+        if self.show_progress_bars:
+            initialize_iterations_pbar(self.total_iterations)
 
         self.converged = False
 
@@ -959,57 +930,43 @@ class TypeIIPWorkflow(WorkflowLogging):
             logger.info(
                 f"\n\tStarting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}"
             )
-            tprint(f"Starting iteration {(self.completed_iterations + 1):d} of {self.total_iterations:d}")
 
-            tprint("Solving opacity")
             self.opacity_states = self.solve_opacity()
 
-            tprint("Solving Monte Carlo")
             self.solve_montecarlo(self.opacity_states, self.real_packet_count)
 
-            tprint("Getting convergence estimates")
             (
                 estimated_values,
                 estimated_radfield_properties,
             ) = self.get_convergence_estimates()
 
-            tprint("Solving simulation state")
             self.solve_simulation_state(estimated_values)
 
-            tprint("Updating estimators")
             normalized_continuum_estimators, damped_normalized_j_blues = (
                 self.update_estimators()
             )
-
             self.damped_normalized_j_blues = damped_normalized_j_blues
             self.solve_plasma(
                 normalized_continuum_estimators, damped_normalized_j_blues
             )
 
             # After first MC step
-            tprint("Solving thermal balance")
             self.solve_thermal_balance()
 
-            tprint("Solving continuum state")
             self.solve_continuum_state(normalized_continuum_estimators)
 
-            tprint("Checking convergence")
             self.converged = self.check_convergence(estimated_values)
             self.completed_iterations += 1
             if self.converged and self.convergence_strategy.stop_if_converged:
-                tprint("Converged!")
                 break
 
-        tprint("Starting final interation")
         if self.converged:
             logger.info("\n\tStarting final iteration")
         else:
             logger.error(
                 "\n\tITERATIONS HAVE NOT CONVERGED, starting final iteration"
             )
-        tprint("Solving opacity")
         self.opacity_states = self.solve_opacity()
-        tprint("Solving Monte Carlo")
         self.solve_montecarlo(
             self.opacity_states,
             self.final_iteration_packet_count,
