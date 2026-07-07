@@ -19,12 +19,17 @@ from tardis.opacities.macro_atom.macroatom_solver import (
 )
 print('Thing 1')
 from tardis.opacities.opacity_solver import OpacitySolver
+print(1)
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
+print(2)
 from tardis.simulation.convergence import ConvergenceSolver
+print(3)
 from tardis.spectrum.base import SpectrumSolver
+print(4)
 from tardis.spectrum.formal_integral.formal_integral_solver import (
     FormalIntegralSolver,
 )
+print(5)
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
