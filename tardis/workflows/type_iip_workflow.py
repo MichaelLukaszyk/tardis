@@ -7,6 +7,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import least_squares as lsq
 from scipy.sparse import block_diag
 
+print('Thing 0')
 from tardis import constants as const
 from tardis.iip_plasma.continuum.base_continuum import BaseContinuum
 from tardis.iip_plasma.continuum.base_continuum_data import ContinuumData
@@ -16,6 +17,7 @@ from tardis.model import SimulationState
 from tardis.opacities.macro_atom.macroatom_solver import (
     ContinuumMacroAtomSolver,
 )
+print('Thing 1')
 from tardis.opacities.opacity_solver import OpacitySolver
 from tardis.plasma.radiation_field import DilutePlanckianRadiationField
 from tardis.simulation.convergence import ConvergenceSolver
@@ -26,18 +28,21 @@ from tardis.spectrum.formal_integral.formal_integral_solver import (
 from tardis.spectrum.luminosity import (
     calculate_filtered_luminosity,
 )
+print("Thing 2")
 from tardis.transport.montecarlo.configuration import montecarlo_globals
 from tardis.transport.montecarlo.modes.iip.solver import (
     MCTransportSolverIIP,
 )
 from tardis.transport.montecarlo.progress_bars import initialize_iterations_pbar
 from tardis.util.environment import Environment
+print('Logger 0')
 from tardis.workflows.workflow_logging import WorkflowLogging
+print('Logger 1')
 
 # logging support
-print('Logger 1')
-logger = logging.getLogger(__name__)
 print('Logger 2')
+logger = logging.getLogger(__name__)
+print('Logger 3')
 
 def tprint(*args, **kwargs):
         from datetime import datetime
