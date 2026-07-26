@@ -2,11 +2,12 @@ import logging
 import re
 import pandas as pd
 from tardis.util.environment import Environment
-import panel as pn
 
-import tardis.util.panel_init as panel_init
-panel_init.auto()
-
+# Panel can freeze the program without error
+if Environment.allows_widget_display():
+    import tardis.util.panel_init as panel_init
+    import panel as pn
+    panel_init.auto()
 
 def create_logger_columns(start_height=10, max_height=300):
     """Create a single logger scroll column with dynamic height.
